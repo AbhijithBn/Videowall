@@ -23,17 +23,62 @@ router.use(bodyParser.json())
 
 module.exports=function(){
 
+    //configuration of monitors input by admin
     server_config=''
-    
+
     //render home page to START/STOP/Configure  the video wall
     router.get('/',function(req,res){
         res.render('start.ejs')//render the client webpage having start and stop button
     })
 
+    //configuration handler
+    router.get('/config',function(req,res){
+        request({
+            uri: "http://192.168.0.105:8080/config?config_button=Config",
+            method: "GET",
+          }, 
+          function(error, response, body) 
+          {
+            if(body){
+                var config_var=body;
+                // console.log("config_var :"+config_var+'which is a '+typeof(config_var));
+                var config_var_obj=JSON.parse(config_var);
+                // console.log("config_var_obj: "+config_var_obj+'which is an '+typeof(config_var_obj));
+                var config_val=config_var_obj['format'];
+                // console.log("config_val :"+config_val+'which is a '+typeof(config_val));
+                output_function(config_val)
+                // return config_val;
+            }
+            else if(error){
+                console.log(error);
+            }
+            
+          }
+        );
+    })
+
+
+    function output_function(config_val){
+        server_config=config_val;
+        console.log('The variable is :',server_config)
+        return server_config;
+    }
+    
     //handling start button
-    router.get('/start_client',function(req,res){
-        // if(req.query.start_button){
-        workProcess=child_process.spawn('omxplayer',[ '-o',  'hdmi', '--crop' , '0,0,640,720', '--win', ' 0,0,1920,1080','udp://239.1.1.1:1234']);
+    router.get('/start_client',function(req,res)
+    {
+        if(server_config=='2x2'){
+            workProcess=child_process.spawn('omxplayer',[ '-o',  'hdmi', '--crop' , '0,0,640,360','--win', ' 0,0,1920,1080','udp://239.1.1.1:1234']);
+        }
+        else if(server_config=='1x2'){
+            workProcess=child_process.spawn('omxplayer',[ '-o',  'hdmi', '--crop' , '0,0,640,720', '--win', ' 0,0,1920,1080','udp://239.1.1.1:1234']);
+        }
+        else if(server_config=='2x1'){
+            workProcess=child_process.spawn('omxplayer',[ '-o',  'hdmi', '--crop' , '0,0,1280,360', '--win', ' 0,0,1920,1080','udp://239.1.1.1:1234']);
+        }
+        else {
+            workProcess=child_process.spawn('omxplayer',[ '-o',  'hdmi', '--win', ' 0,0,1920,1080','udp://239.1.1.1:1234']);
+        }
 
         workProcess.stderr.on('data',function(data){
             console.log("stderr :"+data); // this is printed if there is an error and the error is also printed
@@ -48,44 +93,6 @@ module.exports=function(){
     router.get('/stop_client',function(req,res){
         workProcess.kill()
     })
-
-    //configuration handler
-    router.get('/config',function(req,res){
-        
-        // config_var='hello';
-        // config_var_obj={'name':'Abhijith'};
-        var config_val='Abhi';
-
-        config_val=configfunction();
-
-        //request for accessing monitor configuration data from the server
-        
-        // console.log(config_val)
-    })
-
-    function configfunction(){
-        request({
-            uri: "http://192.168.0.105:8080/config?config_button=Config",
-            method: "GET",
-          }, 
-          function(error, response, body) 
-          {
-            var config_var=body;
-            // console.log("config_var :"+config_var+'which is a '+typeof(config_var));
-            var config_var_obj=JSON.parse(config_var);
-            // console.log("config_var_obj: "+config_var_obj+'which is an '+typeof(config_var_obj));
-            var config_val=config_var_obj['format'];
-            // console.log("config_val :"+config_val+'which is a '+typeof(config_val));
-            output_function(config_val)
-            // return config_val;
-          }
-        );
-    }
-
-    function output_function(config_val){
-        server_config=config_val;
-        console.log('The variable is :',server_config)
-    }
 
     return router
 
