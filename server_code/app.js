@@ -2,6 +2,8 @@
 var express=require('express');
 var app=express();
 var PORT=8080;
+var socket =require('socket.io');
+
 
 //body parser
 var bodyParser=require('body-parser');
@@ -9,17 +11,23 @@ app.use(bodyParser.urlencoded({ extended: true }));// if there is an error at bo
 app.use(bodyParser.json());//body is represented in json format
 app.use(express.static('public'));// for the use of html files
 
+//rendering static files like CSS
+app.use(express.static(__dirname + '/public'));
+
 //EJS
 app.set('views', __dirname + '/views');
 app.set('view engine','ejs');
 
-//handle routes
-var routes=require('./routes/index')();
-app.use('/',routes);
-
-//server
+// server
 var server=app.listen(PORT,function(){
     var host=server.address().address
     var port=server.address().port
     console.log("Example app listening at http://%s:%s", host, port)
 })
+
+//sockets
+var io=socket(server);
+
+//handle routes
+var routes=require('./routes/index')(io);
+app.use('/',routes);
