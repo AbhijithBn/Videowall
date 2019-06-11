@@ -4,6 +4,8 @@ var app=express();
 var PORT=8081;
 
 //socket.io for client
+// const socket = require('socket.io-client');
+// const io=socket.connect('http://192.168.0.105:8080');
 var io=require('socket.io-client');
 var socket=io.connect('http://192.168.0.105:8080');
 

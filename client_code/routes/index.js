@@ -1,4 +1,3 @@
-// child_process.spawn('omxplayer',[ '-o',  'hdmi', '--crop' , '0,0,640,720', '--win', ' 0,0,1920,1080','udp://239.1.1.1:1234']);
 
 //Router
 var express=require('express');

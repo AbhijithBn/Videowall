@@ -37,8 +37,8 @@ router.use(bodyParser.json())
 
 module.exports=function(io){
 
-    // global_var=''//global variable to hold the arrangement required
-    var video_file='' // global variable to store hte name of the video being uploaded by the user
+    // global_var=''//global variable for layout
+    var video_file='' //global var
 
     router.get('/',function(req,res){
 
@@ -61,7 +61,7 @@ module.exports=function(io){
 
         //socket for configuration request by the client
         io.on('connection',function(socket){
-            console.log("Connection established with socket-id:",socket.id);
+            console.log("Connection with server established with socket-id:",socket.id);
             
             socket.on('layout',function(data){
                 io.sockets.emit('config_response',data);

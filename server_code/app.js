@@ -10,9 +10,7 @@ var bodyParser=require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));// if there is an error at body parsing the change it to False
 app.use(bodyParser.json());//body is represented in json format
 
-// app.use(express.static('public'));// for the use of html files
-
-//rendering static files like CSS
+//rendering static files like CSS and server config file
 app.use(express.static(__dirname + '/public'));
 
 //EJS
