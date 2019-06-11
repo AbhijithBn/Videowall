@@ -36,7 +36,7 @@
 
       width: 100%;
       color: darkgray;
-      font-size: 30px;
+      font-size: 20px;
       display: flex;
       align-items: center;
       justify-content:center;
@@ -85,6 +85,14 @@
             </div>
           </div>
         </div>
+        
+        <div class='firstrow' style="margin-top:30px;">
+            <form action="/uploadfile" enctype="multipart/form-data" method="POST"> 
+              <input type="file" name="myFile" />
+              <input type="submit" value="Upload a file"/>
+           </form>
+        </div>
+
       </div>
 
     </div>

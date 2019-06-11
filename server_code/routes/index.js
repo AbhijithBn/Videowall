@@ -2,7 +2,23 @@
 var express=require('express');
 var router=express.Router();
 router.use(express.static('public'));
-// var socket =require('socket.io');//this is not needed in the router
+
+//file upload
+const multer=require('multer');
+const video_name=''
+var storage=multer.diskStorage({
+
+    destination:function(req,file,cb){
+        cb(null,'./')// 'uploads', __dirname ,'../'<-- this will lead into Videowall directory
+    },
+    filename:function(req,file,cb){
+        // console.log(file)
+        // fieldname,originalname,encoding,mimetype are the different fields in file
+        var video_name=file.originalname+'-'+Date.now()+'.mp4'
+        cb(null,video_name)
+    }
+})
+var upload=multer({storage:storage})
 
 //request
 var request=require('request');
@@ -22,6 +38,7 @@ router.use(bodyParser.json())
 module.exports=function(io){
 
     // global_var=''//global variable to hold the arrangement required
+    var video_file='' // global variable to store hte name of the video being uploaded by the user
 
     router.get('/',function(req,res){
 
@@ -31,7 +48,8 @@ module.exports=function(io){
         //     output: process.stdout
         // })
         
-        // readline.question(`What's the layout of screens?`, (data) => {
+        // readline.question(`What's the layout of screens?`, (data) => 
+        // {
         //     console.log(`The layout is ${data}`)
         //     global_var=data
         // })
@@ -66,9 +84,22 @@ module.exports=function(io){
             });
         })
 
+    })
+    router.post('/uploadfile',upload.single('myFile'),function(req,res){
+        const file=req.file
+        if(!file){
+            const error=new Error("Please upload a file")
+            error.httpStatusCode=400
+            // console.log(error)
+        }
+        video_file=file.filename
+        console.log("the video file global variable is :",video_file)
         
+        res.redirect('/')
+        // res.send(file)
     })
 
+    //global variable
     //when user first presses stop button instead of start button
     process_variable=false;
 
@@ -77,7 +108,7 @@ module.exports=function(io){
 
         console.log('Request to stream video');
         // if(req.query.start_button){
-        workProcess=child_process.spawn('avconv', ['-i', 'cat.mp4', '-c:v' ,  'libx264',  '-f',  'mpegts',  'udp://239.1.1.1:1234'])
+        workProcess=child_process.spawn('avconv', ['-i', video_file, '-c:v' ,  'libx264',  '-f',  'mpegts',  'udp://239.1.1.1:1234'])
         
         process_variable=true;
 
@@ -96,8 +127,7 @@ module.exports=function(io){
         }
         else{
             workProcess.kill()
-        }
-        
+        }  
     })
     
     router.get('/config',function(req,res){
