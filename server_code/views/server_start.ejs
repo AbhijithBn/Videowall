@@ -4,31 +4,36 @@
   <meta charset="utf-8">
   <title>Server</title>
   <script src="/socket.io/socket.io.js"></script>
+  <!-- bootstrap CDN -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+  <!-- font awesome CDN-->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 
   <style>
   .upload-btn-wrapper {
-  position: relative;
-  overflow: hidden;
-  display: inline-block;
-}
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+  }
 
-.btn-file {
-  border: 1px solid rgb(132, 133, 134);
-  color: gray;
-  background-color: white;
-  /* padding: 5px 20px 5px 20px; */
-  border-radius: 6px;
-  font-size: 17px;
-}
+  .btn-file {
+    border: 1px solid rgb(132, 133, 134);
+    color: rgb(134, 133, 133);
+    background-color: white;
+    padding: 5px 20px 5px 20px;
+    margin-bottom: 0px;
+    border-radius: 6px;
+    font-size: 17px;
+  }
 
-.upload-btn-wrapper input[type=file] {
-  font-size: 100px;
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
-}
+  .upload-btn-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+  }
+  
   </style>
 
 </head>
@@ -43,13 +48,17 @@
         <div class="card-body ">
               <div>
                   <h2 style="font-size:15px;color: grey">Step1:  Upload the Video</h2>
-                  <form action="/uploadfile" enctype="multipart/form-data" method="POST"> 
-                    <div class="form-group custom-file">
+                    <form action="/uploadfile" enctype="multipart/form-data" method="POST"> 
+                    <div class="d-flex justify-content-center form-group custom-file">
                           <div class="upload-btn-wrapper">
-                            <button class="btn btn-file">Choose Video</button>
+                            <button class="btn-file"><i class="fas fa-file-video"> Browse</i></button>
                             <input type="file" name="myFile" />
-                            <input type="submit" class="btn btn-outline-primary" value="Upload Video"/>
+                          </div> 
+                          <div>
+                              <input type="submit" class="btn btn-block btn-outline-primary" value="Upload Video"/>
+
                           </div>
+
                     </div>
                   </form>
               </div>
@@ -74,8 +83,6 @@
                       <button id="2x2" type="button" class="btn btn-outline-dark">2x2</button>
                   </div>
               </div>
-
-              
 
               <div>
                 <hr>
