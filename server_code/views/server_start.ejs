@@ -10,6 +10,9 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 
   <style>
+  
+ 
+
   .upload-btn-wrapper {
     position: relative;
     overflow: hidden;
@@ -33,17 +36,27 @@
     top: 0;
     opacity: 0;
   }
-  
+
+  .button.play{
+    /* box-sizing: border-box;
+    width: 30px;
+    height: 30px;
+    border-style: solid;
+    border-width: 15px 0px 15px 30px ;
+    border-color: white white white green; */
+    
+  }
+
   </style>
 
 </head>
-<body style="background-color: rgb(102, 191, 243)">
+<body style="background-color: rgb(36, 140, 236)">
     <div class="container" >
     <div class="d-flex h-100 justify-content-center" >
       <div class="card mt-5 ml-5 shadow-lg p-4 mb-4 bg-white" style="border-radius: 15px">
         
         <div class="d-flex justify-content-center card-header" style="color: grey">
-          <h2>Videowall Server</h2>
+          <h3>Videowall Server</h3>
         </div>
         <div class="card-body ">
               <div>
@@ -55,8 +68,7 @@
                             <input type="file" name="myFile" />
                           </div> 
                           <div>
-                              <input type="submit" class="btn btn-block btn-outline-primary" value="Upload Video"/>
-
+                              <input type="submit" class="btn btn-block btn-outline-primary" style="margin-left: 5px" value="Upload Video"/>
                           </div>
 
                     </div>
@@ -85,24 +97,34 @@
               </div>
 
               <div>
-                <hr>
+                  <hr>
               </div>
 
-              <div>
+              <!-- <div>
                   <h2 style="font-size:15px;color: grey">Step3:  Start Streaming the Video</h2>
                   <form action="/start_server"  method="GET">
                     <input id='start_button' type="submit" class="btn btn-block btn-outline-success" name="start_button" value="Start" ></input>
                   </form>
-              </div>
+              </div> -->
+
+
               <div>
                 <hr>
               </div>
-                    
-              <div>
+
+                  
+              <!-- <div>
                   <h2 style="font-size:15px;color: grey">Step4  :  Stop Streaming the Video</h2>
                   <form action="/stop_server"  method="GET">
                     <input id='stop_button' type="submit" class="btn btn-block btn-outline-danger" name="stop_button" value="Stop" ></input>
                   </form>
+              </div>  -->
+
+              <div>
+                <h2 style="font-size:15px;color: grey">Step4  :  Start/Stop Video Stream</h2>
+                <form action="" method="GET">
+                  <button type="submit" id='start_button' onclick="change()"  class=" btn btn-block change_btn btn-outline-primary button play"><i class="fas fa-play"></i></button>
+                </form>
               </div>
                     
                  
@@ -112,7 +134,24 @@
     </div>
 
   </div>
-  
+  <script>
+    function change(){
+      val=document.getElementsByClassName('change_btn')[0]
+      if(val.innerHTML=='<i class="fas fa-play"></i>')
+      {
+        val.innerHTML='<i class="fas fa-stop"></i>';
+        val.id='stop_button'
+        val.parentElement.action='/start_server'
+      }
+      else
+      {
+        val.innerHTML='<i class="fas fa-play"></i>'
+        val.id='start_button'
+        val.parentElement.action='/stop_server'
+      }
+    }
+
+  </script>
 
   <script type="text/javascript" src="/server_config.js">
   </script>
