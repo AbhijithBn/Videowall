@@ -3,6 +3,19 @@ var express=require('express');
 var router=express.Router();
 router.use(express.static('public'));
 
+//body parser
+var bodyParser=require('body-parser');
+router.use(bodyParser.urlencoded({extended:true}))
+// let urlencodedParser = bodyParser.urlencoded({ extended: true });
+// var body_parse=bodyParser.json()
+router.use(bodyParser.json())
+
+//to read the video files in the directory
+const path=require('path');
+const fs=require('fs');
+
+
+
 //file upload
 const multer=require('multer');
 const video_name=''
@@ -13,8 +26,8 @@ var storage=multer.diskStorage({
     },
     filename:function(req,file,cb){
         // console.log(file)
-        // fieldname,originalname,encoding,mimetype are the different fields in file
-        var video_name=file.originalname+'-'+Date.now()+'.mp4'
+        // fieldname,originalname,encoding,mimetype are the different fields in file (+'-'+Date.now()+'.mp4')
+        var video_name=file.originalname;
         cb(null,video_name)
     }
 })
@@ -25,14 +38,6 @@ var request=require('request');
 
 //Handling child processes
 const child_process=require('child_process');
-
-
-//body parser
-var bodyParser=require('body-parser');
-router.use(bodyParser.urlencoded({extended:true}))
-// let urlencodedParser = bodyParser.urlencoded({ extended: true });
-// var body_parse=bodyParser.json()
-router.use(bodyParser.json())
 
 
 module.exports=function(io){
@@ -85,6 +90,32 @@ module.exports=function(io){
         })
 
     })
+
+    //mp4 files in the directory
+    router.get('/dirFile',function(req,res){
+        const directoryPath=path.join('./');
+        file_arr=[]
+        fs.readdir(directoryPath,function(err,files){
+        if(err){
+            return console.log("Unable to scan the directory");
+        }
+
+        for(i=0;i<files.length;i++){
+            var fileSplit=files[i].split('.');
+            var fileSplitLength=fileSplit.length-1;
+            var videoCheck=fileSplit[fileSplitLength];
+            if(videoCheck=='mp4'){
+                console.log(files[i]);
+                file_arr.push(files[i]);
+            }
+        }
+
+        res.json(file_arr);
+    
+})
+
+    })
+
     router.post('/uploadfile',upload.single('myFile'),function(req,res){
         const file=req.file
         if(!file){

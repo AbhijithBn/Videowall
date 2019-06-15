@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Server</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- bootstrap CDN -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+  <!-- font awesome CDN-->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+
+  <style>
+  
+ 
+
+  .upload-btn-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+  }
+
+  .btn-file {
+    border: 1px solid rgb(132, 133, 134);
+    color: rgb(134, 133, 133);
+    background-color: white;
+    padding: 5px 20px 5px 20px;
+    margin-bottom: 0px;
+    border-radius: 6px;
+    font-size: 17px;
+  }
+
+  .upload-btn-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+  }
+
+  .button.play{
+    /* box-sizing: border-box;
+    width: 30px;
+    height: 30px;
+    border-style: solid;
+    border-width: 15px 0px 15px 30px ;
+    border-color: white white white green; */
+    
+  }
+
+  </style>
+
+</head>
+<body style="background-color: rgb(36, 140, 236)">
+    <div class="container" >
+    <div class="d-flex h-100 justify-content-center" >
+      <div class="card mt-5 ml-5 shadow-lg p-4 mb-4 bg-white" style="border-radius: 15px">
+        
+        <!-- card header -->
+        <!-- <div class="d-flex justify-content-center card-header" style="color: grey">
+          <h3>Videowall Server</h3>
+        </div> -->
+
+        <!-- card body -->
+        <div class="card-body ">
+              
+
+              <div>
+                  <h2 style="font-size:15px;color: grey">Step1:  Upload the Video</h2>
+                    <form action="/uploadfile" enctype="multipart/form-data" method="POST"> 
+                    <div class="d-flex justify-content-center form-group custom-file">
+                          <div class="upload-btn-wrapper">
+                            <input class="btn-file"><i class="fas fa-file-video"> Browse</i></input>
+                            <input type="file" name="myFile" />
+                          </div> 
+                          <div>
+                              <input type="submit" class="btn btn-block btn-outline-primary" style="margin-left: 5px" value="Upload Video"/>
+                          </div>
+                    </div>
+                  </form>
+              </div>
+              
+
+              <div>
+                <hr>
+              </div>
+              <h2 style="font-size:15px;color:grey">Step2:  Select the Layout</h2>
+              <div class="d-flex justify-content-center btn-toolbar" role="toolbar" aria-label="Basic example">
+                  <div class="btn-group mr-2" role="group" aria-label="First group">
+                      <button id="1x1" type="button" class="btn btn-outline-dark">1x1</button>
+                  </div>
+    
+                  <div class="btn-group mr-2" role="group" aria-label="Second group">
+                      <button id="1x2" type="button" class="btn btn-outline-dark">1x2</button>
+                  </div>
+                  
+                  <div class="btn-group mr-2" role="group" aria-label="Third group">
+                      <button id="2x1" type="button" class="btn btn-outline-dark">2x1</button>
+                  </div>
+                  <div class="btn-group" role="group" aria-label="Fourth group">
+                      <button id="2x2" type="button" class="btn btn-outline-dark">2x2</button>
+                  </div>
+              </div>
+
+              <div>
+                  <hr>
+              </div>
+
+              <!-- <div>
+                  <h2 style="font-size:15px;color: grey">Step3:  Start Streaming the Video</h2>
+                  <form action="/start_server"  method="GET">
+                    <input id='start_button' type="submit" class="btn btn-block btn-outline-success" name="start_button" value="Start" ></input>
+                  </form>
+              </div> -->
+
+                  
+              <!-- <div>
+                  <h2 style="font-size:15px;color: grey">Step4  :  Stop Streaming the Video</h2>
+                  <form action="/stop_server"  method="GET">
+                    <input id='stop_button' type="submit" class="btn btn-block btn-outline-danger" name="stop_button" value="Stop" ></input>
+                  </form>
+              </div>  -->
+
+              <div>
+                <h2 style="font-size:15px;color: grey">Step4  :  Start/Stop Video Stream</h2>
+                <form action="" method="GET">
+                  <button type="submit" id='start_button' onclick="change()"  class=" btn btn-block change_btn btn-outline-primary button play"><i class="fas fa-play"></i></button>
+                </form>
+              </div>
+                    
+                 
+              
+        </div>    
+      </div>
+    </div>
+
+  </div>
+  <script>
+    function change(){
+      val=document.getElementsByClassName('change_btn')[0]
+      if(val.innerHTML=='<i class="fas fa-play"></i>')
+      {
+        val.innerHTML='<i class="fas fa-stop"></i>';
+        val.id='stop_button'
+        val.parentElement.action='/start_server'
+      }
+      else
+      {
+        val.innerHTML='<i class="fas fa-play"></i>'
+        val.id='start_button'
+        val.parentElement.action='/stop_server'
+      }
+    }
+
+  </script>
+
+  <script type="text/javascript" src="/server_config.js">
+  </script>
+
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>                   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
+</body>
+</html>

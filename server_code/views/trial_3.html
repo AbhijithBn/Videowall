@@ -47,7 +47,7 @@
 
     }
     li:nth-child(odd){
-        background-color: rgba(36, 140, 236,0.08);
+        background-color: rgba(36, 140, 236,0.04);
     }
     .change_btn{
         position: absolute;
@@ -100,7 +100,7 @@
                                 </li>
 
                                 <li class="nav-item">
-                                    <button type="button"  class="btn settings_btn btn-outline-dark " data-toggle="modal" data-target="#exampleModalCenter">
+                                    <button type="button"  class="btn settings_btn btn-light " data-toggle="modal" data-target="#exampleModalCenter">
                                             <i class="fas fa-cog"></i>
                                     </button>
                                 </li>
@@ -259,7 +259,7 @@
         var button=document.createElement('BUTTON');
         var new_i=document.createElement('I');
         new_i.className='fas fa-play'
-        button.className='btn change_btn btn-outline-success button play'
+        button.className='btn change_btn btn-outline-success button_play'
         button.id='start_button';
         // button.onclick=change()
         button.appendChild(new_i);
@@ -281,6 +281,8 @@
 
     //function for start and stop/stop the video
     function change(){
+        
+
       val=document.getElementsByClassName('change_btn')[0]
       if(val.innerHTML=='<i class="fas fa-play"></i>')
       {

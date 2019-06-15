@@ -10,132 +10,253 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 
   <style>
-  
- 
+    .card-header{
+        padding: 0px;
+        border: none;
+    }
 
-  .upload-btn-wrapper {
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-  }
+    .filtersearch{
+        height: 38px;
+        border: 2px solid rgb(228, 221, 221);
+        border-radius: 5px;
+        padding:10px;
+        margin-right: 5px;
+    }
 
-  .btn-file {
-    border: 1px solid rgb(132, 133, 134);
-    color: rgb(134, 133, 133);
-    background-color: white;
-    padding: 5px 20px 5px 20px;
-    margin-bottom: 0px;
-    border-radius: 6px;
-    font-size: 17px;
-  }
+    .fileupload_text{
+        position:absolute;
+        right: 0px;
+        bottom: 0px;
+    }
 
-  .upload-btn-wrapper input[type=file] {
-    font-size: 100px;
-    position: absolute;
-    left: 0;
-    top: 0;
-    opacity: 0;
-  }
-
-  .button.play{
-    /* box-sizing: border-box;
-    width: 30px;
-    height: 30px;
-    border-style: solid;
-    border-width: 15px 0px 15px 30px ;
-    border-color: white white white green; */
+    .fileupload_btn{
+        position: absolute;
+        right: 70px;
+    }
     
-  }
+    ul{
+        list-style: none;
+        padding:0px;
+        border: none;
+        border-radius: 5px;
+
+    }
+    li:nth-child(odd){
+        background-color: rgba(36, 140, 236,0.04);
+    }
+    .change_btn{
+        position: absolute;
+        right: 60px;
+        top:0px;
+        margin-top: 6px;
+    }
+    .btn-outline-success{
+        border: none;
+    }
+    .btn-outline-danger{
+        border: none
+    }
+
+    .delete_btn{
+        position: absolute;
+        right: 0;
+        top: 0;
+        margin: 6px 10px 0px 0px;
+    }
+
 
   </style>
 
 </head>
-<body style="background-color: rgb(36, 140, 236)">
+<body style="background-color: rgb(36, 140, 236) "  onload="videolist()">
     <div class="container" >
-    <div class="d-flex h-100 justify-content-center" >
-      <div class="card mt-5 ml-5 shadow-lg p-4 mb-4 bg-white" style="border-radius: 15px">
-        
-        <!-- card header -->
-        <!-- <div class="d-flex justify-content-center card-header" style="color: grey">
-          <h3>Videowall Server</h3>
-        </div> -->
+        <div class="d-flex h-100 justify-content-center" >
+            <div class="card mt-5 ml-5 shadow-lg p-4 mb-4 " style="width: 1000px; border-radius: 15px; background-color: rgb(255, 255, 255)">
+            
+                <!-- card header -->
+                <div class="card-header">
+                    <nav class="navbar navbar-expand-md navbar-light" style="border-radius: 8px; background-color: rgba(193, 211, 246,0.5)">
+                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">  
+                            <form class="form-inline my-2 my-lg-0">
+                                <input class="form-control mr-sm-2 filtersearch" onkeyup="filterfunction()" id="searchbox" type="text" placeholder="Search" aria-label="Search">
+                                <label for="searchbox"><i class="fas fa-search"></i></label>
+                            </form>
+                        </div>
+                        <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+                            <ul class="navbar-nav ml-auto">
+                                <form action="/uploadfile" enctype="multipart/form-data" method="POST"> 
+                                  <li class="nav-item active">
+                                      <button class="fileupload_btn btn btn-primary "> Upload Video
+                                          <input name="myFile" id='browse_file' onchange="fileInput()"  class="fileupload_text" type="file" style='width:100%; height: 100%; z-index: 100; opacity:0 ' accept="video/*"/>
+                                          <input id='filechangebutton' type="submit" style="display: none">
+                                      </button>
+                                  </li>
+                                </form>
 
-        <!-- card body -->
-        <div class="card-body ">
-              
+                                <li class="nav-item">
+                                    <button type="button"  class="btn settings_btn btn-light " data-toggle="modal" data-target="#exampleModalCenter">
+                                            <i class="fas fa-cog"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
 
-              <!-- <div>
-                  <h2 style="font-size:15px;color: grey">Step1:  Upload the Video</h2>
-                    <form action="/uploadfile" enctype="multipart/form-data" method="POST"> 
-                    <div class="d-flex justify-content-center form-group custom-file">
-                          <div class="upload-btn-wrapper">
-                            <button class="btn-file"><i class="fas fa-file-video"> Browse</i></button>
-                            <input type="file" name="myFile" />
-                          </div> 
-                          <div>
-                              <input type="submit" class="btn btn-block btn-outline-primary" style="margin-left: 5px" value="Upload Video"/>
-                          </div>
+                <!-- card body -->
+                <div class="card-body">                    
+
+                    <!-- file upload  and configure gear using modals-->
+                    <div class='search_upload'>
+    
+                            <!-- Modal for layout selection -->
+                            <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLongTitle">Select Layout</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="d-flex justify-content-center btn-toolbar" role="toolbar" aria-label="Basic example">
+                                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                                                <button id="1x1" type="button" data-dismiss="modal" class="btn btn-outline-dark">1x1</button>
+                                            </div>
+                                
+                                            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                                                <button id="1x2" type="button" data-dismiss="modal" class="btn btn-outline-dark">1x2</button>
+                                            </div>
+                                            
+                                            <div class="btn-group mr-2" role="group" aria-label="Third group">
+                                                <button id="2x1" type="button" data-dismiss="modal" class="btn btn-outline-dark">2x1</button>
+                                            </div>
+                                            <div class="btn-group" role="group" aria-label="Fourth group">
+                                                <button id="2x2" type="button" data-dismiss="modal" class="btn btn-outline-dark">2x2</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Close</button>
+                                    <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                                    </div>
+                                </div>
+                                </div>
+                        
+                            </div>
+                    </div>
+
+                    
+
+                    <div id="fileDiv" class="video_list list-group">
+                        <ul id="fileList">
+                            <!-- <li>File1</li>
+                            <li>File2</li> -->
+                        </ul>
 
                     </div>
-                  </form>
-              </div> -->
-              
-              <div>
-                <hr>
-              </div>
-              <h2 style="font-size:15px;color:grey">Step2:  Select the Layout</h2>
-              <div class="d-flex justify-content-center btn-toolbar" role="toolbar" aria-label="Basic example">
-                  <div class="btn-group mr-2" role="group" aria-label="First group">
-                      <button id="1x1" type="button" class="btn btn-outline-dark">1x1</button>
-                  </div>
-    
-                  <div class="btn-group mr-2" role="group" aria-label="Second group">
-                      <button id="1x2" type="button" class="btn btn-outline-dark">1x2</button>
-                  </div>
-                  
-                  <div class="btn-group mr-2" role="group" aria-label="Third group">
-                      <button id="2x1" type="button" class="btn btn-outline-dark">2x1</button>
-                  </div>
-                  <div class="btn-group" role="group" aria-label="Fourth group">
-                      <button id="2x2" type="button" class="btn btn-outline-dark">2x2</button>
-                  </div>
-              </div>
 
-              <div>
-                  <hr>
-              </div>
+                    <!-- <div>
+                        <form  enctype="multipart/form-data" method="POST"> 
+                            <div class=" form-group custom-file">
+                                <div class="upload-btn-wrapper">
+                                    <button class="btn-file"><i class="fas fa-file-video"> Browse</i></button>
+                                    <input type="file" name="myFile" />
+                                </div> 
 
-              <!-- <div>
-                  <h2 style="font-size:15px;color: grey">Step3:  Start Streaming the Video</h2>
-                  <form action="/start_server"  method="GET">
-                    <input id='start_button' type="submit" class="btn btn-block btn-outline-success" name="start_button" value="Start" ></input>
-                  </form>
-              </div> -->
+                                <div>
+                                     <input type="submit" class="btn btn-block btn-outline-primary" style="margin-left: 5px" value="Upload Video"/> -->   
+                                <!-- </div>
 
-                  
-              <!-- <div>
-                  <h2 style="font-size:15px;color: grey">Step4  :  Stop Streaming the Video</h2>
-                  <form action="/stop_server"  method="GET">
-                    <input id='stop_button' type="submit" class="btn btn-block btn-outline-danger" name="stop_button" value="Stop" ></input>
-                  </form>
-              </div>  -->
+                            </div>
+                        </form>
+                    </div> --> 
 
-              <div>
-                <h2 style="font-size:15px;color: grey">Step4  :  Start/Stop Video Stream</h2>
-                <form action="" method="GET">
-                  <button type="submit" id='start_button' onclick="change()"  class=" btn btn-block change_btn btn-outline-primary button play"><i class="fas fa-play"></i></button>
-                </form>
-              </div>
-                    
-                 
-              
-        </div>    
-      </div>
-    </div>
+                    <!-- <div>
+                        <form action="" method="GET">
+                        <button type="submit" id='start_button' onclick="change()"  class=" btn btn-block change_btn btn-outline-primary button play"><i class="fas fa-play"></i></button>
+                        </form>
+                    </div> -->
 
-  </div>
+                </div>    
+            </div>
+            </div>
+
+        </div>
   <script>
+    function videolist(){
+      fetch('/dirFile')
+        .then((res) =>res.json())
+        .then((data)=> {
+          console.log(data);
+
+          for(var i=0;i<data.length;i++){
+            //list LI element
+            var li=document.createElement('li')
+            li.className='list-group-item';
+            var t=document.createTextNode(data[i])
+            li.appendChild(t)
+            document.getElementById("fileList").appendChild(li);
+
+            //play button
+            var span_play = document.createElement("SPAN");
+            var play_button=document.createElement('BUTTON');
+            var new_i=document.createElement('I');
+            new_i.className='fas fa-play';
+            play_button.className='btn change_btn btn-outline-success button_play';
+            play_button.id='start_button';
+            play_button.appendChild(new_i);
+            span_play.appendChild(play_button);
+            li.appendChild(span_play);
+
+            //delete button
+            var span_del=document.createElement('SPAN');
+            var del_button=document.createElement('BUTTON');
+            var del_i=document.createElement('I');
+            del_i.className='fas fa-trash-alt ';
+            del_button.className='btn btn-outline-danger delete_btn';
+            del_button.appendChild(del_i);
+            span_del.appendChild(del_button);
+            li.appendChild(span_del);
+          }
+
+        })
+    }
+
+
+    //filter function for the search/fiter button
+    function filterfunction(){
+        var input=document.getElementById('searchbox');
+        var filter=input.value.toUpperCase();
+        var ul=document.getElementById('fileList');
+        var li=ul.getElementsByTagName('li');
+        var i,items,txtvalue;
+        for(i=0;i<li.length;i++){
+            items=li[i];
+            txtvalue=items.textContent || items.innerText;
+            if(txtvalue.toUpperCase().indexOf(filter)>-1){
+                li[i].style.display='';
+            }
+            else{
+                li[i].style.display='none';
+            }
+        }
+    }
+
+    //add the file to be uploaded to the list 
+    function fileInput(){
+        //file browse adn upload by the same button
+        document.getElementById('filechangebutton').click()
+    }
+
+    //function for start and stop/stop the video
     function change(){
+        
+
       val=document.getElementsByClassName('change_btn')[0]
       if(val.innerHTML=='<i class="fas fa-play"></i>')
       {
