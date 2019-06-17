@@ -151,11 +151,10 @@
                     </div>
 
                     
-
+                    <!-- list of all the files in the directory -->
                     <div id="fileDiv" class="video_list list-group">
                         <ul id="fileList">
-                            <!-- <li>File1</li>
-                            <li>File2</li> -->
+                            
                         </ul>
 
                     </div>
@@ -188,46 +187,7 @@
 
         </div>
   <script>
-    function videolist(){
-      fetch('/dirFile')
-        .then((res) =>res.json())
-        .then((data)=> {
-          console.log(data);
-
-          for(var i=0;i<data.length;i++){
-            //list LI element
-            var li=document.createElement('li')
-            li.className='list-group-item';
-            var t=document.createTextNode(data[i])
-            li.appendChild(t)
-            document.getElementById("fileList").appendChild(li);
-
-            //play button
-            var span_play = document.createElement("SPAN");
-            var play_button=document.createElement('BUTTON');
-            var new_i=document.createElement('I');
-            new_i.className='fas fa-play';
-            play_button.className='btn change_btn btn-outline-success button_play';
-            play_button.id='start_button';
-            play_button.appendChild(new_i);
-            span_play.appendChild(play_button);
-            li.appendChild(span_play);
-
-            //delete button
-            var span_del=document.createElement('SPAN');
-            var del_button=document.createElement('BUTTON');
-            var del_i=document.createElement('I');
-            del_i.className='fas fa-trash-alt ';
-            del_button.className='btn btn-outline-danger delete_btn';
-            del_button.appendChild(del_i);
-            span_del.appendChild(del_button);
-            li.appendChild(span_del);
-          }
-
-        })
-    }
-
-
+    
     //filter function for the search/fiter button
     function filterfunction(){
         var input=document.getElementById('searchbox');
@@ -247,35 +207,141 @@
         }
     }
 
+    //function to display the videos in the directory on page load
+    function videolist()
+    {
+        fetch('/dirFile')
+        .then((res) =>res.json())
+        .then((data)=> 
+        {
+
+            for(var i=0;i<data.length;i++){
+
+                //list LI element
+                var li=document.createElement('li')
+                li.className='list-group-item';
+                var new_data=data[i];
+                var t=document.createTextNode(data[i]);
+                li.appendChild(t)
+                document.getElementById("fileList").appendChild(li);
+
+                //play button
+                var span_play = document.createElement("SPAN");
+                var play_button=document.createElement('BUTTON');
+                var new_i=document.createElement('I');
+                var play_form=document.createElement('FORM');
+                new_i.className='fas fa-play';
+                play_button.className='btn change_btn btn-outline-success button_play';
+                play_button.id='start_button';
+                play_button.type='submit';
+                play_form.action=''
+                play_form.method='GET';
+                play_button.appendChild(new_i);
+                play_form.appendChild(play_button)
+                span_play.appendChild(play_form);
+                li.appendChild(span_play);
+                
+                //delete button
+                var span_del=document.createElement('SPAN');
+                var del_button=document.createElement('BUTTON');
+                var del_i=document.createElement('I');
+                del_i.className='fas fa-trash-alt ';
+                del_button.className='btn btn-outline-danger delete_btn';
+                del_button.id='deleteVideo';
+                del_button.appendChild(del_i);
+                span_del.appendChild(del_button);
+                li.appendChild(span_del);
+
+                li.onload=load_list();//function called after the list is loaded and then listenting to start buttons for click events 
+                    
+                var del_btn=document.getElementsByClassName('delete_btn');
+                var j;
+                for(j=0;j<del_btn.length;j++){
+                    del_btn[i].onclick=function(){
+                        // console.log('delete button clicked');
+                        var del_variable=this.parentNode.parentElement.childNodes[0].nodeValue;
+                        data={name:del_variable};
+                        fetch('/del_video',{
+                            method:'POST',
+                            body:JSON.stringify(data),
+                            headers:{
+                                'Content-Type': 'application/json'
+                            }
+                        }).then(res => res.json())
+                        .then(response => console.log('Success:', JSON.stringify(response)))
+                        .catch(error => console.error('Error: error in fetching start'));
+
+                        window.location.reload();
+                    }
+                }
+            }
+        })
+    }
+
+
     //add the file to be uploaded to the list 
     function fileInput(){
         //file browse adn upload by the same button
         document.getElementById('filechangebutton').click()
     }
 
-    //function for start and stop/stop the video
-    function change(){
-        
+    //on loading the list, play or stop the video
+    function load_list(){
 
-      val=document.getElementsByClassName('change_btn')[0]
-      if(val.innerHTML=='<i class="fas fa-play"></i>')
-      {
-        val.innerHTML='<i class="fas fa-stop"></i>';
-        val.id='stop_button'
-        val.parentElement.action='/start_server'
-      }
-      else
-      {
-        val.innerHTML='<i class="fas fa-play"></i>'
-        val.id='start_button'
-        val.parentElement.action='/stop_server'
-      }
+        //handling the play button
+        var play_stop=document.getElementsByClassName('change_btn');
+        
+        var i;
+        // console.log(del_btn)
+        // console.log(play_stop)
+        for(i=0;i<play_stop.length;i++){
+            play_stop[i].onclick=function(){
+                var action=this;
+                filename=this.parentElement.parentElement.parentElement.innerText;
+                // console.log(filename);
+                data={name:filename};
+                // console.log(data);
+                if(action.innerHTML=='<i class="fas fa-play"></i>'){
+                    action.innerHTML='<i class="fas fa-stop"></i>';
+                    this.id='stop_button'
+                    this.parentElement.action='/start_server'
+
+                    fetch('/video_data', {
+                    method: 'POST', // or 'PUT'
+                    body: JSON.stringify(data), // data can be `string` or {object}!
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }
+                    }).then(res => res.json())
+                    .then(response => console.log('Success:', JSON.stringify(response)))
+                    .catch(error => console.error('Error: error in fetching start'));
+                }
+
+                else{
+
+                    action.innerHTML='<i class="fas fa-play"></i>';
+                    this.id='start_button';
+                    this.parentElement.action='/stop_server';
+
+                }
+ 
+            }
+        }
+
+        // var del_btn=document.getElementsByClassName('delete_btn');
+        // var j;
+        // console.log(del_btn.length);
+        // for(j=0;j<del_btn.length;j++){
+        //     del_btn[i].onclick=function(){
+        //         console.log('delete button clicked');
+        //     }
+        // }
     }
 
-  </script>
+    </script>
 
-  <script type="text/javascript" src="/server_config.js">
-  </script>
+    <script type="text/javascript" src="/server_config.js">
+    </script>
 
 
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

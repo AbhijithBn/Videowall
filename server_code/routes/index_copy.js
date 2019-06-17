@@ -6,12 +6,15 @@ router.use(express.static('public'));
 //body parser
 var bodyParser=require('body-parser');
 router.use(bodyParser.urlencoded({extended:true}))
-
+// let urlencodedParser = bodyParser.urlencoded({ extended: true });
+// var body_parse=bodyParser.json()
 router.use(bodyParser.json())
 
-//to read the video files in the directory 
+//to read the video files in the directory
 const path=require('path');
 const fs=require('fs');
+
+
 
 //file upload
 const multer=require('multer');
@@ -44,6 +47,21 @@ module.exports=function(io){
 
     router.get('/',function(req,res){
 
+        // console.log("Display configuration");
+        // const readline = require('readline').createInterface({
+        //     input: process.stdin,
+        //     output: process.stdout
+        // })
+        
+        // readline.question(`What's the layout of screens?`, (data) => 
+        // {
+        //     console.log(`The layout is ${data}`)
+        //     global_var=data
+        // })
+    
+        // if(global_var){
+        //     readline.close()
+        // }
         res.render('server_start.ejs')//rendering the ejs file 
 
         //socket for configuration request by the client
@@ -81,40 +99,20 @@ module.exports=function(io){
         if(err){
             return console.log("Unable to scan the directory");
         }
+
         for(i=0;i<files.length;i++){
             var fileSplit=files[i].split('.');
             var fileSplitLength=fileSplit.length-1;
             var videoCheck=fileSplit[fileSplitLength];
             if(videoCheck=='mp4'){
-                // console.log(files[i]);
+                console.log(files[i]);
                 file_arr.push(files[i]);
             }
         }
 
         res.json(file_arr);
     
-        })
-    })
-
-    //
-    router.post('/del_video',function(req,res){
-        filename=req.body.name;
-        fs.unlink(filename, function(err){
-            if(err){
-                console.log("Error in deleting file",err);
-            }
-            else{
-                console.log("File has been deleted and the file name is :",filename)
-            }
-        })
-
-    })
-
-    //request to play data 
-    router.post('/video_data',function(req,res){
-        // console.log(req,res);
-        video_file=req.body.name;
-        console.log("In video_data the video requested to play is",video_file);
+})
 
     })
 
@@ -125,8 +123,8 @@ module.exports=function(io){
             error.httpStatusCode=400
             // console.log(error)
         }
-        // video_file=file.filename
-        // console.log("the video file global variable is :",video_file)
+        video_file=file.filename
+        console.log("the video file global variable is :",video_file)
         
         res.redirect('/')
         // res.send(file)
@@ -139,8 +137,7 @@ module.exports=function(io){
     //starting server when user presses the start button
     router.get('/start_server',function(req,res){
 
-        
-        console.log("Request to stream the video :",video_file);
+        console.log('Request to stream video');
         // if(req.query.start_button){
         workProcess=child_process.spawn('avconv', ['-i', video_file, '-c:v' ,  'libx264',  '-f',  'mpegts',  'udp://239.1.1.1:1234'])
         

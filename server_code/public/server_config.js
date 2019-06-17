@@ -27,11 +27,13 @@ two_by_two.addEventListener('click',function(){
 
 //start button event emitter
 start.addEventListener('click',function(){
+    console.log('Transmission started');
     socket.emit('txn_start');
 });
 
 //stop button event emitter
 stop.addEventListener('click',function(){
+    console.log('Transmission stopped');
     socket.emit('txn_stop');
 })
 
