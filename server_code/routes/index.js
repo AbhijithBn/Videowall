@@ -6,7 +6,6 @@ router.use(express.static('public'));
 //body parser
 var bodyParser=require('body-parser');
 router.use(bodyParser.urlencoded({extended:true}))
-
 router.use(bodyParser.json())
 
 //to read the video files in the directory 
@@ -15,14 +14,13 @@ const fs=require('fs');
 
 //file upload
 const multer=require('multer');
-const video_name=''
+// const video_name=''
 var storage=multer.diskStorage({
 
     destination:function(req,file,cb){
         cb(null,'./')// 'uploads', __dirname ,'../'<-- this will lead into Videowall directory
     },
     filename:function(req,file,cb){
-        // console.log(file)
         // fieldname,originalname,encoding,mimetype are the different fields in file (+'-'+Date.now()+'.mp4')
         var video_name=file.originalname;
         cb(null,video_name)
@@ -30,47 +28,34 @@ var storage=multer.diskStorage({
 })
 var upload=multer({storage:storage})
 
-//request
-var request=require('request');
-
-//Handling child processes
 const child_process=require('child_process');
 
 
 module.exports=function(io){
-
-    // global_var=''//global variable for layout
-    var video_file='' //global var
+    
+    //global variables
+    var video_file='';
+    process_variable=false;
 
     router.get('/',function(req,res){
+        res.render('server_start.ejs')
 
-        res.render('server_start.ejs')//rendering the ejs file 
-
-        //socket for configuration request by the client
+        //socket.io
         io.on('connection',function(socket){
             console.log("Connection with server established with socket-id:",socket.id);
-            
-            socket.on('layout',function(data){
-                io.sockets.emit('config_response',data);
-                console.log("Screen layout has been sent ")
-            });
 
-            socket.on('txn_start',function(){
-                io.sockets.emit('client_start');
-                console.log("Start button has been pressed");
-            });
-
-            socket.on('txn_stop',function(){
-                io.sockets.emit('client_stop');
-                console.log("Stop button has been pressed")
-            });
-
-            // Disconnect listener
             socket.on('disconnect', function() {
                 console.log('Client disconnected.');
             });
         })
+    })
 
+    //Layout specofied by the server admin
+    router.post('/layoutInfo',function(req,res){
+        layout_data=req.body.layout;
+        
+        io.sockets.emit('config_response',layout_data);
+        console.log("Screen layout has been sent ")
     })
 
     //mp4 files in the directory
@@ -90,13 +75,11 @@ module.exports=function(io){
                 file_arr.push(files[i]);
             }
         }
-
         res.json(file_arr);
-    
         })
     })
 
-    //
+    //delete file button pressed
     router.post('/del_video',function(req,res){
         filename=req.body.name;
         fs.unlink(filename, function(err){
@@ -107,12 +90,10 @@ module.exports=function(io){
                 console.log("File has been deleted and the file name is :",filename)
             }
         })
-
     })
 
     //request to play data 
     router.post('/video_data',function(req,res){
-        // console.log(req,res);
         video_file=req.body.name;
         console.log("In video_data the video requested to play is",video_file);
 
@@ -123,25 +104,19 @@ module.exports=function(io){
         if(!file){
             const error=new Error("Please upload a file")
             error.httpStatusCode=400
-            // console.log(error)
         }
-        // video_file=file.filename
-        // console.log("the video file global variable is :",video_file)
-        
         res.redirect('/')
-        // res.send(file)
     })
 
-    //global variable
-    //when user first presses stop button instead of start button
-    process_variable=false;
 
     //starting server when user presses the start button
     router.get('/start_server',function(req,res){
-
+        console.log('Start button is pressed in /start_server start button with video_file',video_file);
         
-        console.log("Request to stream the video :",video_file);
-        // if(req.query.start_button){
+        
+        io.sockets.emit('client_start');
+        console.log("Start button has been pressed");       
+        
         workProcess=child_process.spawn('avconv', ['-i', video_file, '-c:v' ,  'libx264',  '-f',  'mpegts',  'udp://239.1.1.1:1234'])
         
         process_variable=true;
@@ -152,9 +127,15 @@ module.exports=function(io){
         workProcess.on('close',function(code) {
                 console.log("child process exited with code "+code);// this is printed after every stdout command on close
         });
+        
     })
 
     router.get('/stop_server',function(req,res){
+        console.log('Stop button pressed in index.js and /stop_server');
+
+        io.sockets.emit('client_stop');
+        console.log("Stop button has been pressed")
+
         if(process_variable==false){
             console.log('No process to kill');
             res.redirect('/');

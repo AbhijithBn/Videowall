@@ -125,18 +125,18 @@
                                     <div class="modal-body">
                                         <div class="d-flex justify-content-center btn-toolbar" role="toolbar" aria-label="Basic example">
                                             <div class="btn-group mr-2" role="group" aria-label="First group">
-                                                <button id="1x1" type="button" data-dismiss="modal" class="btn btn-outline-dark">1x1</button>
+                                                <button id="1x1" onclick="layoutfunction(innerHTML)" type="button" data-dismiss="modal" class="btn btn-outline-dark">1x1</button>
                                             </div>
                                 
                                             <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                                <button id="1x2" type="button" data-dismiss="modal" class="btn btn-outline-dark">1x2</button>
+                                                <button id="1x2" onclick="layoutfunction(innerHTML)" type="button" data-dismiss="modal" class="btn btn-outline-dark">1x2</button>
                                             </div>
                                             
                                             <div class="btn-group mr-2" role="group" aria-label="Third group">
-                                                <button id="2x1" type="button" data-dismiss="modal" class="btn btn-outline-dark">2x1</button>
+                                                <button id="2x1" onclick="layoutfunction(innerHTML)" type="button" data-dismiss="modal" class="btn btn-outline-dark">2x1</button>
                                             </div>
                                             <div class="btn-group" role="group" aria-label="Fourth group">
-                                                <button id="2x2" type="button" data-dismiss="modal" class="btn btn-outline-dark">2x2</button>
+                                                <button id="2x2" onclick="layoutfunction(innerHTML)" type="button" data-dismiss="modal" class="btn btn-outline-dark">2x2</button>
                                             </div>
                                         </div>
                                     </div>
@@ -158,28 +158,6 @@
                         </ul>
 
                     </div>
-
-                    <!-- <div>
-                        <form  enctype="multipart/form-data" method="POST"> 
-                            <div class=" form-group custom-file">
-                                <div class="upload-btn-wrapper">
-                                    <button class="btn-file"><i class="fas fa-file-video"> Browse</i></button>
-                                    <input type="file" name="myFile" />
-                                </div> 
-
-                                <div>
-                                     <input type="submit" class="btn btn-block btn-outline-primary" style="margin-left: 5px" value="Upload Video"/> -->   
-                                <!-- </div>
-
-                            </div>
-                        </form>
-                    </div> --> 
-
-                    <!-- <div>
-                        <form action="" method="GET">
-                        <button type="submit" id='start_button' onclick="change()"  class=" btn btn-block change_btn btn-outline-primary button play"><i class="fas fa-play"></i></button>
-                        </form>
-                    </div> -->
 
                 </div>    
             </div>
@@ -206,6 +184,23 @@
             }
         }
     }
+    
+    //layout selection button
+    function layoutfunction(innerHTML){
+        console.log(typeof(innerHTML));
+        data={layout:innerHTML}
+        fetch('/layoutInfo', {
+            method: 'POST', // or 'PUT'
+            body: JSON.stringify(data), // data can be `string` or {object}!
+            headers:{
+                'Content-Type': 'application/json'
+            }
+        }).then(res => res.json())
+        .then(response => console.log('Success:', JSON.stringify(response)))
+        .catch(error => console.error('Error: error in fetching start'));
+    }
+    
+
 
     //function to display the videos in the directory on page load
     function videolist()
@@ -258,20 +253,28 @@
                 var j;
                 for(j=0;j<del_btn.length;j++){
                     del_btn[i].onclick=function(){
-                        // console.log('delete button clicked');
-                        var del_variable=this.parentNode.parentElement.childNodes[0].nodeValue;
-                        data={name:del_variable};
-                        fetch('/del_video',{
-                            method:'POST',
-                            body:JSON.stringify(data),
-                            headers:{
-                                'Content-Type': 'application/json'
-                            }
-                        }).then(res => res.json())
-                        .then(response => console.log('Success:', JSON.stringify(response)))
-                        .catch(error => console.error('Error: error in fetching start'));
+                        var confirm_del= confirm("Are you sure you want to delete the video?");
+                        if(confirm_del==true){
 
-                        window.location.reload();
+                            var del_variable=this.parentNode.parentElement.childNodes[0].nodeValue;
+                            data={name:del_variable};
+                            fetch('/del_video',{
+                                method:'POST',
+                                body:JSON.stringify(data),
+                                headers:{
+                                    'Content-Type': 'application/json'
+                                }
+                            }).then(res => res.json())
+                            .then(response => console.log('Success:', JSON.stringify(response)))
+                            .catch(error => console.error('Error: error in fetching start'));
+
+                            window.location.reload();
+
+                        }
+                        else{
+                            console.log('Delete button pressed unintentionally')
+                        }
+
                     }
                 }
             }
@@ -281,7 +284,6 @@
 
     //add the file to be uploaded to the list 
     function fileInput(){
-        //file browse adn upload by the same button
         document.getElementById('filechangebutton').click()
     }
 
@@ -292,13 +294,13 @@
         var play_stop=document.getElementsByClassName('change_btn');
         
         var i;
-        // console.log(del_btn)
-        // console.log(play_stop)
-        for(i=0;i<play_stop.length;i++){
+        for(var i=0;i<play_stop.length;i++){
             play_stop[i].onclick=function(){
+
                 var action=this;
                 filename=this.parentElement.parentElement.parentElement.innerText;
                 // console.log(filename);
+    
                 data={name:filename};
                 // console.log(data);
                 if(action.innerHTML=='<i class="fas fa-play"></i>'){
@@ -318,29 +320,19 @@
                 }
 
                 else{
-
                     action.innerHTML='<i class="fas fa-play"></i>';
                     this.id='start_button';
                     this.parentElement.action='/stop_server';
-
                 }
- 
+
+                
             }
         }
-
-        // var del_btn=document.getElementsByClassName('delete_btn');
-        // var j;
-        // console.log(del_btn.length);
-        // for(j=0;j<del_btn.length;j++){
-        //     del_btn[i].onclick=function(){
-        //         console.log('delete button clicked');
-        //     }
-        // }
     }
-
     </script>
 
-    <script type="text/javascript" src="/server_config.js">
+    <script>
+    var socket=io.connect('http://localhost:8080');
     </script>
 
 

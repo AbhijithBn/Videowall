@@ -21,14 +21,14 @@ router.use(bodyParser.json())
 
 
 module.exports=function(socket){
+    //global variables
+    server_config='' ;    //configuration of monitors input by admin
+    process_variable=false;
 
-    //configuration of monitors input by admin
-    server_config=''
 
     //render home page to START/STOP/Configure  the video wall
     router.get('/',function(req,res){
         
-        res.render('start.ejs')//render the client webpage having start and stop button
         
         socket.on('connect',function(){
             console.log('Client connection to server established')
@@ -39,6 +39,7 @@ module.exports=function(socket){
         });
         socket.on('client_start',function(){
             console.log("Server streaming has started");
+            process_variable=true;
 
             if(server_config=='2x2'){
                 workProcess=child_process.spawn('omxplayer',[ '-o',  'hdmi', '--crop' , '0,0,640,360','--win', ' 0,0,1920,1080','udp://239.1.1.1:1234']);
@@ -60,10 +61,17 @@ module.exports=function(socket){
                     console.log("child process exited with code "+code);// this is printed after every stdout command on close
             });
         });
-    
+        
         socket.on('client_stop',function(){
-            console.log('Server streaming has stopped');
-            workProcess.kill()
+
+            if(process_variable==false){
+                console.log('No process to kill');
+                res.redirect('/');
+            }
+            else{
+                console.log('Server streaming has stopped');
+                workProcess.kill()
+            } 
         });
         
 

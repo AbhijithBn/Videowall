@@ -4,13 +4,12 @@ var app=express();
 var PORT=8080;
 var socket =require('socket.io');
 
-
 //body parser
 var bodyParser=require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));// if there is an error at body parsing the change it to False
 app.use(bodyParser.json());//body is represented in json format
 
-//rendering static files like CSS and server config file
+//serving files
 app.use(express.static(__dirname + '/public'));
 
 //EJS
@@ -24,7 +23,7 @@ var server=app.listen(PORT,function(){
     console.log("Example app listening at http://%s:%s", host, port)
 })
 
-//sockets
+//socket.io
 var io=socket(server);
 
 //handle routes
