@@ -30,12 +30,12 @@ var upload=multer({storage:storage})
 
 const child_process=require('child_process');
 
-
 module.exports=function(io){
     
     //global variables
     var video_file='';
-    process_variable=false;
+    process_variable=false;//indicates if it is a new process/ or a single process
+    process_id=0
 
     router.get('/',function(req,res){
         res.render('server_start.ejs')
@@ -58,7 +58,7 @@ module.exports=function(io){
         console.log("Screen layout has been sent ")
     })
 
-    //mp4 files in the directory
+    //mp4 files in the directory displayed on the webpage
     router.get('/dirFile',function(req,res){
         const directoryPath=path.join('./');
         file_arr=[]
@@ -79,7 +79,7 @@ module.exports=function(io){
         })
     })
 
-    //delete file button pressed
+    //delete file button pressed from the directory
     router.post('/del_video',function(req,res){
         filename=req.body.name;
         fs.unlink(filename, function(err){
@@ -91,12 +91,53 @@ module.exports=function(io){
             }
         })
     })
+    var current_PID=child_process.pid;
 
-    //request to play data 
-    router.post('/video_data',function(req,res){
-        video_file=req.body.name;
-        console.log("In video_data the video requested to play is",video_file);
+    //start playing the video to be streaming
+    router.post('/video_start',function(req,res)
+    {
+        if(current_PID==undefined){
+            io.sockets.emit('client_start');
+            console.log("Start button has been pressed");  
+    
+            video_file=req.body.name;
+            console.log('PID before spawing the first process is:',child_process.pid);
+    
+            workProcess=child_process.spawn('avconv', ['-i', video_file, '-c:v' ,  'libx264',  '-f',  'mpegts',  'udp://239.1.1.1:1234']);
+            current_PID=workProcess.pid;
+            workProcess.stderr.on('data',function(data){
+                console.log("Process ID:"+workProcess.pid+"stderr :"+data);
+            });
+    
+            workProcess.on('close',function(code) {
+                    console.log("child process exited with code "+code);// this is printed after every stdout command on close
+            });
+        }
+        else{
+            io.sockets.emit('client_stop');
+            workProcess.kill()
 
+            setTimeout(function(){
+                io.sockets.emit('client_start');
+                video_file=req.body.name;
+                workProcess=child_process.spawn('avconv', ['-i', video_file, '-c:v' ,  'libx264',  '-f',  'mpegts',  'udp://239.1.1.1:1234']);
+                workProcess.stderr.on('data',function(data){
+                    console.log("Process ID:"+workProcess.pid+"stderr :"+data);
+                });
+        
+                workProcess.on('close',function(code) {
+                        console.log("child process exited with code "+code);// this is printed after every stdout command on close
+                });
+            },15000);
+        }
+    })
+
+    //router to stop the video playback
+    router.post('/video_stop',function(req,res){
+        io.sockets.emit('client_stop');
+        console.log("Stop button has been pressed");
+        workProcess.kill()
+        current_PID=undefined;
     })
 
     router.post('/uploadfile',upload.single('myFile'),function(req,res){
@@ -108,46 +149,9 @@ module.exports=function(io){
         res.redirect('/')
     })
 
-
-    //starting server when user presses the start button
-    router.get('/start_server',function(req,res){
-        console.log('Start button is pressed in /start_server start button with video_file',video_file);
-        
-        
-        io.sockets.emit('client_start');
-        console.log("Start button has been pressed");       
-        
-        workProcess=child_process.spawn('avconv', ['-i', video_file, '-c:v' ,  'libx264',  '-f',  'mpegts',  'udp://239.1.1.1:1234'])
-        
-        process_variable=true;
-
-        workProcess.stderr.on('data',function(data){//stderr is an output stream
-            console.log("stderr :"+data);
-        });
-        workProcess.on('close',function(code) {
-                console.log("child process exited with code "+code);// this is printed after every stdout command on close
-        });
-        
-    })
-
-    router.get('/stop_server',function(req,res){
-        console.log('Stop button pressed in index.js and /stop_server');
-
-        io.sockets.emit('client_stop');
-        console.log("Stop button has been pressed")
-
-        if(process_variable==false){
-            console.log('No process to kill');
-            res.redirect('/');
-        }
-        else{
-            workProcess.kill()
-        }  
-    })
-    
     router.get('/config',function(req,res){
         res.json({format:global_var})
     })
 
-    return router
+    return router           
 }
