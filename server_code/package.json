@@ -16,7 +16,7 @@
   ],
   "author": "Abhijith B N",
   "dependencies": {
-    "async": "^2.6.2",
+    "async": "^3.2.2",
     "bcryptjs": "^2.4.3",
     "connect-flash": "^0.1.1",
     "ejs": "^2.6.1",
